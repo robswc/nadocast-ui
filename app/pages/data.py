@@ -4,6 +4,8 @@ import dash
 from dash import html, dcc, callback, Input, Output
 
 from utils.data import get_forecasts, download_forecast, create_probabilities_df, list_forecasts
+from utils.ui import input_group
+import dash_bootstrap_components as dbc
 
 dash.register_page(__name__)
 
@@ -19,22 +21,15 @@ TZ_OPTIONS = [
         'value': 14},
 ]
 
-layout = html.Div([
+layout = dbc.Container([
     html.H1('Get Forecast'),
-    dcc.DatePickerSingle(
-        id='date',
-        date=datetime.datetime.now(),
-    ),
-    dcc.Dropdown(
-        id='hour',
-        options=TZ_OPTIONS,
-        value=0,
-    ),
-    html.Button('Get Forecast', id='get-forecast'),
+    input_group(component_id='date', label='Date', value=datetime.datetime.now(), input_type='date'),
+    input_group(component_id='hour', label='Hour', value=0, input_type='dropdown', options=TZ_OPTIONS),
+    dbc.Button('Get Forecast', id='get-forecast', className='w-100'),
     html.Div(id='forecast-output'),
     html.H1("All Forecasts"),
-    html.Button('Get All Forecasts', id='get-all-forecasts'),
     html.Div(id='all-forecasts'),
+    dbc.Button('Refresh', id='get-all-forecasts', className='w-100'),
 ])
 
 
@@ -50,6 +45,7 @@ def get_forecast(n_clicks, date: str, hour: int):
 
     # get a datetime object from date string, it will come in like this '2024-05-07T15:34:23.565221'
     date = datetime.datetime.strptime(date.split('T')[0], '%Y-%m-%d')
+    print(f"Selected Date {date} Hour {hour}")
 
     probas = create_probabilities_df(date, hour, 1)
 
@@ -62,5 +58,12 @@ def get_forecast(n_clicks, date: str, hour: int):
 )
 def get_all_forecasts(n_clicks):
     forecast_files = list_forecasts(path='storage/fips_probabilities', recursive=True)
-    return html.Ul([html.Li([html.Div(f), dcc.Link(href=f"/map/{f.split('/')[-1].split('.')[0]}")]) for f in
-                    forecast_files])
+    forecasts = []
+    for f in forecast_files:
+        forecasts.append(
+            html.Tr([
+                html.Td(f),
+                html.Td(dbc.Button("View", href=f"/map/{f.split('/')[-1].split('.')[0]}"))
+            ], className='d-flex justify-content-between align-items-center')
+        )
+    return html.Table(forecasts)

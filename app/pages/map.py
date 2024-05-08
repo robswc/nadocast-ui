@@ -1,12 +1,9 @@
-import json
-from urllib.request import urlopen
-
 import dash
-from dash import dash_table
-import pandas as pd
-from dash import html, dcc, callback, Input, Output
-import plotly.express as px
 import dash_bootstrap_components as dbc
+import pandas as pd
+import plotly.express as px
+from dash import dash_table
+from dash import html, dcc, callback, Input, Output
 
 from utils.geo_data import get_fips_geojson
 
@@ -16,6 +13,7 @@ dash.register_page(__name__, path_template='/map/<filename>', name='Map')
 def layout(filename: str = None, **kwargs):
     return html.Div([
         html.H1('Map'),
+        dcc.Input(id='filename', value=filename, type='hidden'),
         dbc.Container([
             dbc.Row([
                 dbc.Col(
@@ -57,9 +55,9 @@ def layout(filename: str = None, **kwargs):
     Output('map', 'figure'),
     Output('table', 'data'),
     # add an input that triggers on page load
-    Input('map', 'figure')
+    Input('filename', 'value')
 )
-def update_map(relayoutData):
+def update_map(filename: str):
     color_range = {
         0.001: 'lightgray',
         0.01: 'gray',
@@ -89,8 +87,12 @@ def update_map(relayoutData):
 
     color_scale = convert_color_range_to_plotly(color_range)
 
-    df = pd.read_csv('storage/fips_probabilities/20240506_0.csv', dtype={
+    path = f'storage/fips_probabilities/{filename}.csv'
+    print(path)
+    df = pd.read_csv(path, dtype={
         'fips': str})
+
+    print(df.head(5))
 
     fig = px.choropleth(
         df,

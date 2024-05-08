@@ -107,10 +107,11 @@ def get_tornado_probability_df(grib_file: str) -> pd.DataFrame:
 
 def create_probabilities_df(date: datetime, hour: int, day: int, name: str = None):
     """Create a pandas DataFrame with the probabilities for each forecast"""
-    forecast = get_forecasts(datetime(2024, 5, 6), hour=0, day=1)[0]
-    file_path = download_forecast(forecast, to_path='storage')
+    forecast = get_forecasts(datetime(date.year, date.month, date.day), hour=hour, day=1)[0]
+    grib_path = download_forecast(forecast, to_path='storage')
+    print('Downloaded forecast:', grib_path)
 
-    tpdf = get_tornado_probability_df(file_path)
+    tpdf = get_tornado_probability_df(grib_path)
     gdf = gpd.read_file('utils/data/geojson-counties-fips.json')
 
     # now, let us reduce each geometry to a single point (the centroid)
@@ -142,4 +143,8 @@ def create_probabilities_df(date: datetime, hour: int, day: int, name: str = Non
     joined_gdf = joined_gdf[['fips', 'name', 'state', 'tornado_probability']]
 
     joined_gdf.to_csv(proba_file_path)
+
+    # remove the grib file
+    os.remove(grib_path)
+
     return proba_file_path
