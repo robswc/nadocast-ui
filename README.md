@@ -11,3 +11,5 @@ Current predictions are [posted to twitter](https://twitter.com/nadocast) at reg
 
 Nadocast-ui is an unofficial supplemental interface for viewing forecasts published/created by nadocast.  Features include an interactive choropleth map and ability to "scrub" through predictions.
 It is written mostly in python, using the [Dash Plotly framework](https://dash.plotly.com/) for maps and charting.
+
+Anyone can run nadocast-ui locally or on their own server!  I currently have a hosted version running at: [https://nadocast-ui.robswc.me/](https://nadocast-ui.robswc.me/)
