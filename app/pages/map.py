@@ -1,3 +1,5 @@
+import os
+
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -48,6 +50,7 @@ def map():
 
 
 def layout(filename: str = None, **kwargs):
+
     return html.Div([
         html.H1('Map'),
         dcc.Input(id='filename', value=filename, type='hidden'),
@@ -89,7 +92,13 @@ def layout(filename: str = None, **kwargs):
     Input('filename', 'value')
 )
 def update_map(filename: str):
-    path = f'storage/fips_probabilities/{filename}.csv'
+
+    if filename == 'today' or filename is None:
+        latest_file = os.listdir('storage/fips_probabilities')[-1]
+        path = f'storage/fips_probabilities/{latest_file.split(".")[0]}.csv'
+    else:
+        path = f'storage/fips_probabilities/{filename}.csv'
+
     df = pd.read_csv(path, dtype={
         'fips': str})
 
