@@ -2,7 +2,7 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-dash.register_page(__name__, path_template='/', name='Home')
+dash.register_page(__name__, path_template="/", name="Home")
 
 
 def get_readme_from_github():
@@ -14,17 +14,15 @@ def get_readme_from_github():
     raw = response.text
 
     # remove any images within the markdown
-    raw = raw.split('\n')
+    raw = raw.split("\n")
     new_raw = []
     for line in raw:
-        if not line.startswith('!['):
+        if not line.startswith("!["):
             new_raw.append(line)
-    raw = '\n'.join(new_raw)
+    raw = "\n".join(new_raw)
 
     return raw
 
 
 def layout():
-    return dbc.Container([
-        dbc.Card(dcc.Markdown(get_readme_from_github()), body=True)
-    ])
+    return dbc.Container([dbc.Card(dcc.Markdown(get_readme_from_github()), body=True)])
