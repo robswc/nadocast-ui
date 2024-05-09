@@ -1,11 +1,9 @@
 import datetime
 
 import dash
-from dash import html, dcc, callback, Input, Output
+from dash import html, callback, Input, Output
 
 from utils.data import (
-    get_forecasts,
-    download_forecast,
     create_probabilities_df,
     list_forecasts,
 )
@@ -59,9 +57,9 @@ def get_forecast(n_clicks, date: str, hour: int):
     created_datetime = datetime.datetime.strptime(date.split("T")[0], "%Y-%m-%d")
     print(f"Selected Date {created_datetime} Hour {hour}")
 
-    probas = create_probabilities_df(created_datetime, hour, 1)
+    create_probabilities_df(created_datetime, hour, 1)
 
-    return f"Downloaded forecast"
+    return "Downloaded forecast"
 
 
 @callback(
