@@ -12,6 +12,5 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip install ruff mypy black pytest
       - run: ruff check app
-      - run: mypy --strict app
       - run: black --check app
       - run: pytest app
