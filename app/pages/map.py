@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import dash
 import dash_bootstrap_components as dbc
@@ -58,7 +59,7 @@ def layout(filename: str | None = None, **kwargs):
 
     return html.Div(
         [
-            html.H1("Map"),
+            html.Div(id="title"),
             dcc.Input(id="filename", value=filename, type="hidden"),
             dbc.Container(
                 [
@@ -111,12 +112,25 @@ def layout(filename: str | None = None, **kwargs):
 
 
 @callback(
+    Output("title", "children"),
     Output("map", "figure"),
     Output("table", "data"),
     # add an input that triggers on page load
     Input("filename", "value"),
 )
-def update_map(filename: str):
+def update_map(filename: str) -> datetime:
+
+    def get_datetime_from_path(file_path: str):
+        # get just the filename
+        fname = file_path.split("/")[-1]
+        # remove the extension
+        fname = fname.split(".")[0]
+        # remove the hour
+        fname = fname.split("_")[0]
+        day = fname[-2:]
+        month = fname[-4:-2]
+        year = fname[:-4]
+        return datetime(int(year), int(month), int(day))
 
     if filename == "today" or filename is None:
 
@@ -126,10 +140,20 @@ def update_map(filename: str):
         # remove the hour
         all_files = [f.split("_")[0] for f in all_files]
         all_files = sorted(all_files)
-        latest_file = all_files[-1]
-        path = f'storage/fips_probabilities/{latest_file.split(".")[0]}_0.csv'
+
+        file_exists = False
+        failsafe = 0
+        while not file_exists and failsafe < 10:
+            latest_file = all_files.pop()
+            path = f"storage/fips_probabilities/{latest_file}_0.csv"
+            forecast_dt = get_datetime_from_path(path)
+            if os.path.exists(path):
+                file_exists = True
+            failsafe += 1
+
     else:
         path = f"storage/fips_probabilities/{filename}.csv"
+        forecast_dt = get_datetime_from_path(path)
 
     df = pd.read_csv(path, dtype={"fips": str})
 
@@ -161,4 +185,6 @@ def update_map(filename: str):
     # round tornado_probability to 2 decimal places
     df["tornado_probability"] = df["tornado_probability"].round(2)
 
-    return fig, df.to_dict("records")
+    title = html.H2(f"Forecast for {forecast_dt.strftime('%Y-%m-%d')}")
+
+    return title, fig, df.to_dict("records")
