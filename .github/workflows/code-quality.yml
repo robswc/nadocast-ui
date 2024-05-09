@@ -1,0 +1,17 @@
+name: Code Quality
+on: [ pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - run: pip install --upgrade pip
+      - run: pip install ruff mypy black pytest
+      - run: ruff check app
+      - run: mypy --strict app
+      - run: black --check app
+      - run: pytest app
