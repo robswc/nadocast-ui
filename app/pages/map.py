@@ -94,8 +94,15 @@ def layout(filename: str = None, **kwargs):
 def update_map(filename: str):
 
     if filename == 'today' or filename is None:
-        latest_file = os.listdir('storage/fips_probabilities')[-1]
-        path = f'storage/fips_probabilities/{latest_file.split(".")[0]}.csv'
+
+        # this needs to be improved later
+        all_files = os.listdir('storage/fips_probabilities')
+        all_files.remove('.keep')
+        # remove the hour
+        all_files = [f.split('_')[0] for f in all_files]
+        all_files = sorted(all_files)
+        latest_file = all_files[-1]
+        path = f'storage/fips_probabilities/{latest_file.split(".")[0]}_0.csv'
     else:
         path = f'storage/fips_probabilities/{filename}.csv'
 
