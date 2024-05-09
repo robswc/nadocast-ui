@@ -54,7 +54,7 @@ def map():
     )
 
 
-def layout(filename: str = None, **kwargs):
+def layout(filename: str | None = None, **kwargs):
 
     return html.Div(
         [

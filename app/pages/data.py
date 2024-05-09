@@ -56,10 +56,10 @@ def get_forecast(n_clicks, date: str, hour: int):
         return ""
 
     # get a datetime object from date string, it will come in like this '2024-05-07T15:34:23.565221'
-    date = datetime.datetime.strptime(date.split("T")[0], "%Y-%m-%d")
-    print(f"Selected Date {date} Hour {hour}")
+    created_datetime = datetime.datetime.strptime(date.split("T")[0], "%Y-%m-%d")
+    print(f"Selected Date {created_datetime} Hour {hour}")
 
-    probas = create_probabilities_df(date, hour, 1)
+    probas = create_probabilities_df(created_datetime, hour, 1)
 
     return f"Downloaded forecast"
 

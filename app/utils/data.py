@@ -16,7 +16,7 @@ from utils.types import ForecastFile
 HOST = "http://data.nadocast.com"
 
 
-def get_forecasts(date: datetime, hour: int = 0, day: int = 1, name: str = None):
+def get_forecasts(date: datetime, hour: int = 0, day: int = 1, name: str | None = None):
     """Returns a list of all the forecasts for the given date and hour"""
 
     if name is None:
@@ -115,7 +115,9 @@ def get_tornado_probability_df(grib_file: str) -> pd.DataFrame:
     return df
 
 
-def create_probabilities_df(date: datetime, hour: int, day: int, name: str = None):
+def create_probabilities_df(
+    date: datetime, hour: int, day: int, name: str | None = None
+):
     """Create a pandas DataFrame with the probabilities for each forecast"""
     forecast = get_forecasts(
         datetime(date.year, date.month, date.day), hour=hour, day=1
