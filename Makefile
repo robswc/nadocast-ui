@@ -13,6 +13,7 @@ build:
 	docker build -t nadocast-ui .
 
 lint:
+	.venv/bin/ruff check app --fix
 	.venv/bin/mypy --install-types
 	.venv/bin/mypy app --ignore-missing-imports --config-file=pyproject.toml
 	.venv/bin/black app
