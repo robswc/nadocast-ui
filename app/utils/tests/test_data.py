@@ -13,7 +13,7 @@ def test_get_forecasts():
 def test_download_forecast():
     """Test that we can download a forecast from the data server"""
     forecast = get_forecasts(date=datetime(2024, 5, 7))[0]
-    file_path = download_forecast(forecast, to_path='storage')
+    file_path = download_forecast(forecast, to_path="storage")
     assert file_path is not None
     assert os.path.exists(file_path)
     os.remove(file_path)
