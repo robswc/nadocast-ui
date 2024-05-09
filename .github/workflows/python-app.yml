@@ -25,7 +25,8 @@ jobs:
 
     - name: Run lint
       run: |
-        python -m mypy app --ignore-missing-imports --config-file=pyproject.toml
+        mypy --install-types --non-interactive
+        mypy app --ignore-missing-imports --config-file=pyproject.toml
         python -m flake8 app
 
   pytest:
