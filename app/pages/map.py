@@ -10,7 +10,7 @@ from dash import html, dcc, callback, Input, Output
 import plotly.graph_objects as go
 from dash.html import H2
 from plotly.graph_objs import Figure
-
+from utils import ui
 from utils.data import create_probabilities_df
 from utils.geo_data import get_fips_geojson
 
@@ -78,8 +78,9 @@ def layout(filename: str | None = None, **kwargs):
                                 xxl=6,
                             ),
                             dbc.Col(
-                                [
-                                    dash_table.DataTable(
+                                ui.card(
+                                    title="County and Tornado Probability",
+                                    children=dash_table.DataTable(
                                         id="table",
                                         data=[],
                                         columns=[
@@ -89,6 +90,7 @@ def layout(filename: str | None = None, **kwargs):
                                         editable=False,
                                         filter_action="native",
                                         sort_action="native",
+                                        page_size=20,
                                         style_data={
                                             "width": "150px",
                                             "minWidth": "150px",
@@ -96,8 +98,8 @@ def layout(filename: str | None = None, **kwargs):
                                             "overflow": "hidden",
                                             "textOverflow": "ellipsis",
                                         },
-                                    )
-                                ],
+                                    ),
+                                ),
                                 xs=12,
                                 sm=12,
                                 md=6,
