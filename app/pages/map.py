@@ -48,13 +48,44 @@ def convert_color_range_to_plotly(color_range):
 COLOR_SCALE = convert_color_range_to_plotly(COLOR_RANGE)
 
 
-def map():
-    return dcc.Graph(
-        id="map",
-        figure={},
-        config={"scrollZoom": True},
-        responsive=True,
-        style={"height": "60vh"},
+def map_card():
+
+    return ui.card(
+        title=html.H2(id="title"),
+        children=dcc.Loading(
+            dcc.Graph(
+                id="map",
+                figure={},
+                config={"scrollZoom": True},
+                responsive=True,
+                style={"height": "60vh"},
+            )
+        ),
+    )
+
+
+def table_card():
+
+    return ui.card(
+        title="County and Tornado Probability",
+        children=dcc.Loading(
+            dash_table.DataTable(
+                id="table",
+                data=[],
+                columns=[{"name": i, "id": i} for i in ["name", "tornado_probability"]],
+                editable=False,
+                filter_action="native",
+                sort_action="native",
+                page_size=20,
+                style_data={
+                    "width": "150px",
+                    "minWidth": "150px",
+                    "maxWidth": "150px",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                },
+            )
+        ),
     )
 
 
@@ -62,14 +93,13 @@ def layout(filename: str | None = None, **kwargs):
 
     return html.Div(
         [
-            html.Div(id="title"),
             dcc.Input(id="filename", value=filename, type="hidden"),
             dbc.Container(
                 [
                     dbc.Row(
                         [
                             dbc.Col(
-                                [dcc.Loading(map()), html.Div("Parameters")],
+                                [map_card()],
                                 xs=12,
                                 sm=12,
                                 md=6,
@@ -78,28 +108,7 @@ def layout(filename: str | None = None, **kwargs):
                                 xxl=6,
                             ),
                             dbc.Col(
-                                ui.card(
-                                    title="County and Tornado Probability",
-                                    children=dash_table.DataTable(
-                                        id="table",
-                                        data=[],
-                                        columns=[
-                                            {"name": i, "id": i}
-                                            for i in ["name", "tornado_probability"]
-                                        ],
-                                        editable=False,
-                                        filter_action="native",
-                                        sort_action="native",
-                                        page_size=20,
-                                        style_data={
-                                            "width": "150px",
-                                            "minWidth": "150px",
-                                            "maxWidth": "150px",
-                                            "overflow": "hidden",
-                                            "textOverflow": "ellipsis",
-                                        },
-                                    ),
-                                ),
+                                table_card(),
                                 xs=12,
                                 sm=12,
                                 md=6,
@@ -107,7 +116,8 @@ def layout(filename: str | None = None, **kwargs):
                                 xl=6,
                                 xxl=6,
                             ),
-                        ]
+                        ],
+                        className="mb-3",
                     )
                 ],
                 fluid=True,
@@ -123,7 +133,7 @@ def layout(filename: str | None = None, **kwargs):
     # add an input that triggers on page load
     Input("filename", "value"),
 )
-def update_map(filename: str) -> tuple[H2, Figure, list[dict]]:
+def update_map(filename: str) -> tuple[str, Figure, list[dict]]:
 
     def get_datetime_from_path(file_path: str):
         # get just the filename
@@ -202,6 +212,6 @@ def update_map(filename: str) -> tuple[H2, Figure, list[dict]]:
     # round tornado_probability to 2 decimal places
     df["tornado_probability"] = df["tornado_probability"].round(2)
 
-    title = html.H2(f"Forecast for {forecast_dt.strftime('%Y-%m-%d')}")
+    title = f"Forecast for {forecast_dt.strftime('%Y-%m-%d')}"
 
     return title, fig, df.to_dict("records")

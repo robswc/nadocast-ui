@@ -41,7 +41,7 @@ app.layout = html.Div(
                     className="text-white",
                 ),
             ],
-            className="bg-black text-white d-flex align-items-center justify-content-between p-3",
+            className="bg-black text-white d-flex align-items-center justify-content-between p-3 mt-3",
         ),
     ]
 )
