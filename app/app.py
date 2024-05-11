@@ -1,3 +1,5 @@
+import os
+
 import dash
 from dash import Dash, html
 import dash_bootstrap_components as dbc
@@ -26,6 +28,21 @@ app.layout = html.Div(
             className="mb-3",
         ),
         dash.page_container,
+        html.Footer(
+            [
+                html.A(
+                    "Source",
+                    href="https://github.com/robswc/nadocast-ui",
+                    className="text-white",
+                ),
+                html.A(
+                    f"Release: " f"{os.getenv('APP_VERSION', None)}",
+                    href=f"https://github.com/robswc/nadocast-ui/releases/tag/{os.getenv('APP_VERSION', None)}",
+                    className="text-white",
+                ),
+            ],
+            className="bg-black text-white d-flex align-items-center justify-content-between p-3",
+        ),
     ]
 )
 
