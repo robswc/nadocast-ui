@@ -8,7 +8,10 @@ import plotly.express as px
 from dash import dash_table
 from dash import html, dcc, callback, Input, Output
 import plotly.graph_objects as go
+from dash.html import H2
+from plotly.graph_objs import Figure
 
+from utils.data import create_probabilities_df
 from utils.geo_data import get_fips_geojson
 
 dash.register_page(__name__, path_template="/map/<filename>", name="Map")
@@ -118,7 +121,7 @@ def layout(filename: str | None = None, **kwargs):
     # add an input that triggers on page load
     Input("filename", "value"),
 )
-def update_map(filename: str) -> datetime:
+def update_map(filename: str) -> tuple[H2, Figure, list[dict]]:
 
     def get_datetime_from_path(file_path: str):
         # get just the filename
@@ -133,23 +136,35 @@ def update_map(filename: str) -> datetime:
         return datetime(int(year), int(month), int(day))
 
     if filename == "today" or filename is None:
+        # Define constant for directory path
+        PROBABILITY_DIR = "storage/fips_probabilities"
 
-        # this needs to be improved later
-        all_files = os.listdir("storage/fips_probabilities")
-        all_files.remove(".keep")
-        # remove the hour
-        all_files = [f.split("_")[0] for f in all_files]
-        all_files = sorted(all_files)
+        def get_forecast_date_and_path(date_str):
+            """Returns the forecast date and path based on the given date string."""
+            forecast_dt = datetime.strptime(date_str, "%Y%m%d")
+            path = f"{PROBABILITY_DIR}/{date_str}_0.csv"
+            return forecast_dt, path
 
-        file_exists = False
-        failsafe = 0
-        while not file_exists and failsafe < 10:
-            latest_file = all_files.pop()
-            path = f"storage/fips_probabilities/{latest_file}_0.csv"
-            forecast_dt = get_datetime_from_path(path)
-            if os.path.exists(path):
-                file_exists = True
-            failsafe += 1
+        def get_or_create_forecast(date_str):
+            """Returns the forecast date and path, creating the forecast if necessary."""
+            if date_str in all_files:
+                return get_forecast_date_and_path(date_str)
+            else:
+                forecast_dt = datetime.now()
+                create_probabilities_df(date=forecast_dt, hour=0, day=1)
+                return (
+                    forecast_dt,
+                    f"{PROBABILITY_DIR}/{forecast_dt.strftime('%Y%m%d')}_0.csv",
+                )
+
+        # Get all files, excluding ".keep" and removing the hour
+        all_files = [
+            f.split("_")[0] for f in os.listdir(PROBABILITY_DIR) if f != ".keep"
+        ]
+
+        # Get or create forecast for today
+        today = datetime.now().strftime("%Y%m%d")
+        forecast_dt, path = get_or_create_forecast(today)
 
     else:
         path = f"storage/fips_probabilities/{filename}.csv"
