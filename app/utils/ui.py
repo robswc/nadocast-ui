@@ -1,5 +1,5 @@
 import dash_bootstrap_components as dbc
-from dash import dcc
+from dash import dcc, html
 
 
 def input_group(
@@ -51,3 +51,16 @@ def input_group(
                 ],
                 className="mb-3",
             )
+
+
+def card(title, children, footer=None):
+    return dbc.Card(
+        [
+            dbc.CardBody([
+                html.H2(title, className="card-title"),
+                children
+            ]),
+            dbc.CardFooter(footer) if footer else None
+        ],
+        className="mb-3",
+    )
