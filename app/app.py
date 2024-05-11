@@ -20,7 +20,7 @@ app.layout = html.Div(
             ],
             brand=html.Img(
                 src="/assets/nadocast-ui-logo.png",
-                height=64,
+                height=48,
             ),
             brand_href="/",
             color="black",
