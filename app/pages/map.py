@@ -8,7 +8,6 @@ import plotly.express as px
 from dash import dash_table
 from dash import html, dcc, callback, Input, Output
 import plotly.graph_objects as go
-from dash.html import H2
 from plotly.graph_objs import Figure
 from utils import ui
 from utils.data import create_probabilities_df
