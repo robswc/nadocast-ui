@@ -56,11 +56,8 @@ def input_group(
 def card(title, children, footer=None):
     return dbc.Card(
         [
-            dbc.CardBody([
-                html.H2(title, className="card-title"),
-                children
-            ]),
-            dbc.CardFooter(footer) if footer else None
+            dbc.CardBody([html.H2(title, className="card-title"), children]),
+            dbc.CardFooter(footer) if footer else None,
         ],
         className="mb-3",
     )

@@ -8,6 +8,8 @@ import plotly.express as px
 from dash import dash_table
 from dash import html, dcc, callback, Input, Output
 import plotly.graph_objects as go
+from dash.html import H2
+from plotly.graph_objs import Figure
 
 from utils import ui
 from utils.geo_data import get_fips_geojson
@@ -121,7 +123,7 @@ def layout(filename: str | None = None, **kwargs):
     # add an input that triggers on page load
     Input("filename", "value"),
 )
-def update_map(filename: str) -> datetime:
+def update_map(filename: str) -> tuple[H2, Figure, list[dict]]:
 
     def get_datetime_from_path(file_path: str):
         # get just the filename
