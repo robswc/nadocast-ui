@@ -33,13 +33,13 @@ def cards():
                 ui.card(
                     title="See Today's Forecast",
                     children=dbc.CardLink("View", href="/map/today"),
-                )
+                ), xs=12, sm=12, md=6, lg=6, xl=6, xxl=6,
             ),
             dbc.Col(
                 ui.card(
                     title="See Historical Forecasts",
                     children=dbc.CardLink("View", href="/data"),
-                )
+                ), xs=12, sm=12, md=6, lg=6, xl=6, xxl=6,
             ),
         ]
     )
