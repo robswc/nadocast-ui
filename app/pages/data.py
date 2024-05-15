@@ -2,7 +2,7 @@ import datetime
 
 import dash
 import pandas as pd
-from dash import html, callback, Input, Output, dcc
+from dash import html, callback, Input, Output
 from dash.dash_table import DataTable
 
 from utils.data import (
