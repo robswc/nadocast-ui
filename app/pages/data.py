@@ -1,7 +1,9 @@
 import datetime
 
 import dash
+import pandas as pd
 from dash import html, callback, Input, Output
+from dash.dash_table import DataTable
 
 from utils.data import (
     create_probabilities_df,
@@ -20,25 +22,86 @@ TZ_OPTIONS = [
 
 layout = dbc.Container(
     [
-        html.H1("Get Forecast"),
-        input_group(
-            component_id="date",
-            label="Date",
-            value=datetime.datetime.now(),
-            input_type="date",
+        dbc.Row(
+            dbc.Col(
+                dbc.Card(
+                    [
+                        html.H1("Generate Forecast"),
+                        html.P(
+                            "Here we can generate a forecast for a specific date and hour, if it doesn't already "
+                            "exist.  You can view all forecasts below."
+                        ),
+                        html.Div(
+                            [
+                                input_group(
+                                    component_id="date",
+                                    label="Date",
+                                    value=datetime.datetime.now(),
+                                    input_type="date",
+                                ),
+                                input_group(
+                                    component_id="hour",
+                                    label="Hour",
+                                    value=0,
+                                    input_type="dropdown",
+                                    options=TZ_OPTIONS,
+                                ),
+                            ],
+                            className="d-flex align-items-center justify-content-start w-100",
+                        ),
+                        dbc.Button("Generate", id="get-forecast", className="w-100"),
+                        html.Div(id="forecast-output"),
+                    ],
+                    body=True,
+                )
+            )
         ),
-        input_group(
-            component_id="hour",
-            label="Hour",
-            value=0,
-            input_type="dropdown",
-            options=TZ_OPTIONS,
+        dbc.Row(
+            dbc.Col(
+                dbc.Card(
+                    [
+                        html.H1("All Forecasts"),
+                        html.I(
+                            "Slide table right to view more columns and 'View' Button",
+                            className="text-muted",
+                        ),
+                        DataTable(
+                            id="all-forecasts",
+                            columns=[
+                                {"name": "Filename", "id": "Filename"},
+                                {"name": "Date", "id": "Date"},
+                                {"name": "Year", "id": "Year"},
+                                {"name": "Month", "id": "Month"},
+                                {"name": "Day", "id": "Day"},
+                                {"name": "Hour", "id": "Hour"},
+                                {
+                                    "name": "View",
+                                    "id": "View",
+                                    "presentation": "markdown",
+                                },
+                            ],
+                            data=[],
+                            page_size=50,
+                            sort_action="native",
+                            filter_action="native",
+                            style_data={
+                                "width": "150px",
+                                "minWidth": "150px",
+                                "maxWidth": "150px",
+                                "overflow": "hidden",
+                                "textOverflow": "ellipsis",
+                            },
+                            style_table={"overflowX": "auto"},
+                        ),
+                        dbc.Button(
+                            "Refresh", id="get-all-forecasts", className="w-100 mt-3"
+                        ),
+                    ],
+                    body=True,
+                )
+            ),
+            className="mt-3",
         ),
-        dbc.Button("Get Forecast", id="get-forecast", className="w-100"),
-        html.Div(id="forecast-output"),
-        html.H1("All Forecasts"),
-        html.Div(id="all-forecasts"),
-        dbc.Button("Refresh", id="get-all-forecasts", className="w-100"),
     ]
 )
 
@@ -63,24 +126,43 @@ def get_forecast(n_clicks, date: str, hour: int):
 
 
 @callback(
-    Output("all-forecasts", "children"),
+    Output("all-forecasts", "data"),
     Input("get-all-forecasts", "n_clicks"),
 )
 def get_all_forecasts(n_clicks):
+
+    def _get_day(date_str):
+        return datetime.datetime.strptime(date_str, "%Y%m%d").day
+
+    def _get_month(date_str):
+        return datetime.datetime.strptime(date_str, "%Y%m%d").month
+
+    def _get_year(date_str):
+        return datetime.datetime.strptime(date_str, "%Y%m%d").year
+
+    def _get_hour(date_str):
+        return int(date_str.split("_")[-1].split(".")[0])
+
     forecast_files = list_forecasts(path="storage/fips_probabilities", recursive=True)
+    # create dataframe
     forecasts = []
-    for f in forecast_files:
+    for file in forecast_files:
         forecasts.append(
-            html.Tr(
-                [
-                    html.Td(f),
-                    html.Td(
-                        dbc.Button(
-                            "View", href=f"/map/{f.split('/')[-1].split('.')[0]}"
-                        )
-                    ),
-                ],
-                className="d-flex justify-content-between align-items-center",
-            )
+            {
+                "Filename": str(file).split("/")[-1],
+                "Date": datetime.datetime.strptime(
+                    str(file).split("/")[-1].split("_")[0], "%Y%m%d"
+                ),
+                "Year": _get_year(str(file).split("/")[-1].split("_")[0]),
+                "Month": _get_month(str(file).split("/")[-1].split("_")[0]),
+                "Day": _get_day(str(file).split("/")[-1].split("_")[0]),
+                "Hour": _get_hour(str(file).split("/")[-1]),
+                "View": f"#### [View Map](/map/{file.split('/')[-1].split('.')[0]})",
+            }
         )
-    return html.Table(forecasts)
+    df = pd.DataFrame(forecasts)
+
+    # finally, sort by date (newest first)
+    df = df.sort_values(by="Date", ascending=False)
+
+    return df.to_dict("records")
