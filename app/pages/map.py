@@ -57,7 +57,7 @@ def map_card():
                 figure={},
                 config={"scrollZoom": True},
                 responsive=True,
-                style={"height": "60vh"},
+                style={"height": "70vh"},
             )
         ),
     )
@@ -101,19 +101,19 @@ def layout(filename: str | None = None, **kwargs):
                                 [map_card()],
                                 xs=12,
                                 sm=12,
-                                md=6,
-                                lg=6,
-                                xl=6,
-                                xxl=6,
+                                md=8,
+                                lg=8,
+                                xl=8,
+                                xxl=8,
                             ),
                             dbc.Col(
                                 table_card(),
                                 xs=12,
                                 sm=12,
-                                md=6,
-                                lg=6,
-                                xl=6,
-                                xxl=6,
+                                md=4,
+                                lg=4,
+                                xl=4,
+                                xxl=4,
                             ),
                         ],
                         className="mb-3",
@@ -196,7 +196,7 @@ def update_map(filename: str) -> tuple[str, Figure, list[dict]]:
     )
     fig.update_layout(
         # remove legend
-        margin={"r": 10, "t": 0, "l": 10, "b": 0},
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
         showlegend=False,
         coloraxis=dict(colorbar=dict(orientation="h", y=-0.25)),
     )
